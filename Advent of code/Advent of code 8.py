@@ -52,7 +52,7 @@ def decoded_length(s): # chcemy obliczyć ile znaków zajmuje w pamięci dane s�
                 elif s[i+1] == 'x' and i + 3 < len(s): # lub jeśli indeks który znajduje się po \ jest równy x oraz są jeszcze po nim 2 inne symbole(nie jest to koniec słowa):
                     length += 1 # zwiększ długość słowa o 1
                     i += 4 # przeskocz o 4 indeksy do przodu na słowie np. w słowie abc\\abc\"abc\xd2abc doszliśmy do indeksu 13, w którym jest \ a po nim bezpośrednio jest x,
-                            # to dodajemy 1 do długości słowa i przeskakujemy o 4 indeksy, do indeksu 17, czyli a 
+                            # to dodajemy 1 do długości słowa i przeskakujemy o 4 indeksy, do indeksu 17, czyli a, bo \xd2 jest jednym symbolem dla pythona 
                 else:
                     length += 1 # w każdym przeciwnym wypadku (czyli jeśli nie jest to początek escape sequence), dodaj 1 do długości słowa i leć na kolejny znak
                     i += 1
