@@ -33,11 +33,11 @@ turn on 0,0 through 0,0 would increase the total brightness by 1.
 toggle 0,0 through 999,999 would increase the total brightness by 2000000."""
 
 test_input = "turn on 0,0 through 2,2\nturn off 500,500 through 999,999\ntoggle 300,300 through 500,500" # 40410 lights
-#mode = "input"
-mode = "test_input"
+mode = "input"
+#mode = "test_input"
 
 if mode == "input":
-    input_path = "Python-training/Python-training/Advent of code/input_day6.txt"
+    input_path = "./Advent of code/input_day6.txt"
     file = open(input_path)
     input = file.read()
     print("MODE = INPUT")
@@ -48,12 +48,10 @@ elif mode == "test_input":
 coordinates = [(x,y) for x in range(1000) for y in range(1000)]
 light_states = {coord: 0 for coord in coordinates}
 def turn_on(coord):
-    
-    light_states[coord] = 1
+    light_states[coord] = 1 # zmień status zmiennej coord w słowniku light_states na 1
 
 def turn_off(coord):
-    if coord != -1:
-        light_states[coord] = 0
+    light_states[coord] = 0
 
 def toggle(coord):
     light_states[coord] = 1 - light_states[coord]
@@ -81,4 +79,39 @@ def instruction_processor(input):
 instruction_processor(input)
 print(sum(light_states.values())) # wyprintuj sumę wszystkich 1 (czyli podświetlonych lampek)
 
+"""--- PART TWO ---"""
 
+light_states = {coord: 0 for coord in coordinates} # resetuj wszystkie statusy do 0 
+
+def turn_on_brightness(coord):
+    light_states[coord] += 1 # zmień status zmiennej coord w słowniku light_states na 1
+
+def turn_off_brightness(coord):
+    if light_states[coord] > 0:
+        light_states[coord] -= 1
+
+def toggle_brightness(coord):
+    light_states[coord] += 2
+
+def second_instruction_processor(input):
+    for line in input.splitlines(): # potnij input (instrukcje) na line, czyli pojedyncze linijki
+        if line.startswith("turn on"): # jeśli instrukcja zaczyna się od turn on to zrób to:
+            action = turn_on_brightness
+            coord = line[len("turn on "):] # obetnij line, czyli rozpatrywaną linijkę od momentu kiedy skończy się wyrażenie turn on aż do końca
+        elif line.startswith("turn off"): # analogicznie do poprzedniego
+            action = turn_off_brightness
+            coord = line[len("turn off "):] # analogicznie do poprzedniego
+        elif line.startswith("toggle"): # analogicznie do poprzedniego
+            action = toggle_brightness
+            coord = line[len("toggle "):] # analogicznie do poprzedniego
+        else:
+            continue
+        start, end = coord.split(" through ") # teraz w inpucie mamy np. (500,500 through 900,900), wytnij through i będą startowe lampki start = "500,500" do końcowych lampek end = "900,900"
+        x_start, y_start = map(int, start.split(",")) # teraz mamy coś takiego dla zmiennej start "500,500" i ta funkcja map(int, start.split(",")) ciacha ten string przez "," i od razu przypisuje (mapuje) pierwsze 500 do x_start i drugie 500 do y_start
+        x_end,y_end = map(int, end.split(",")) # analogiczne jw.
+        for x in range(x_start,x_end+1): # no i teraz zawiązujemy wszystko co chcieliśmy zrobić dla obu współrzędnych - wykonaj dla każdego x w zakresie od start do końca +1 (bo indeksy)
+            for y in range(y_start,y_end+1): # potem to samo też dla y, bo musi być jedno z drugim razem zrobione
+                action((x,y)) # action zdefiniowane funkcjami zdefiniowanymi na początku programu 
+
+second_instruction_processor(input)
+print(sum(light_states.values()))
