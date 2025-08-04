@@ -41,12 +41,16 @@ cities=list()
 
 for element in input: # dla każdego elementu w input:
     expr, target = element.split(' = ') # podziel instrukcje na expr i target w miejscu gdzie jest =
-    expr = expr.split(" to ") 
-    cities.append(expr)
-    target = target.strip() # tu też i wtedy z instrukcji np. 'AlphaCentauri to Tambi = 18' zostaje ci {('AlphaCentauri','Tambi') : 18}
-    travel.update({tuple(expr):int(target)})
+    expr = expr.split(" to ")
+    target = int(target.strip()) # tu z instrukcji np. 'AlphaCentauri to Tambi = 18' zostaje ci {('AlphaCentauri','Tambi') : 18} i przy okazji ta wartość 18 od razu jest intem
+    # cities.append(expr)
+    a,b = expr # podziel pary miast na pojedyncze miasta do permutacji
+    travel[(a,b)] = target 
+    travel[(b,a)] = target
+    cities.extend([a,b])
+    # travel.update({tuple(expr):int(target)}) # tu tworzymy słownik z inputu
 
-# {
+    # {
 # ('Faerun', 'Norrath'): 129, 
 # ('Faerun', 'Tristram'): 58, 
 # ('Faerun', 'AlphaCentauri'): 13, 
@@ -77,66 +81,73 @@ for element in input: # dla każdego elementu w input:
 # ('Tambi', 'Straylight'): 70
 # }
 
-for x in travel: # dla każdego elementu w dictionary travel (czyli: {('AlphaCentauri','Tambi') : 18})
-    travel_path = [] # zaczynamy sprawdzanie od zainicjowania ścieżki podróży
+def permutacje(city_list): # robimy każdą możliwą ścieżkę w ogóle
+    if len(city_list) == 0:
+        return [[]] # zaczynamy od inputu pustego
+    result = []
+    for element in range(len(city_list)): # tworzymy permutacje dla każdego elementu listy
+        first = city_list[element] # element listy na którym iterujemy
+        rest = city_list[:element] + city_list[element+1:] # pozostałe elementy listy z lewej i prawej strony
+        for perm in permutacje(rest): # przeprowadź zdefiniowaną powyżej funkcję dla pozostałych elementów listy
+            result.append([first] + perm) # stwórz końcowy rezultat zrobiony z elementu listy z ktorego iterowałeś i pozostałych permutacji 
+    return result
+
+# for para in cities:
+#     for element in para:
+#         city_list.add(element) # te 3 linijki robią to samo co linijka poniżej
+# city_set = {element for para in cities for element in para}
+city_list=list(set(cities)) # szybka metoda na zrobienie zestawu unikatowych miast
+city_perm = permutacje(city_list)
+
+# print(city_perm)
+# print(city_list)
+shortest_distance = float('inf') # zamiast magic numberu można dać nieskończoność w ten sposób
+shortest_path = []
+longest_distance = 0
+longest_path = []
+
+for permutacja in city_perm: # dla każdego elementu w dictionary travel (czyli: {('AlphaCentauri','Tambi') : 18})
     distance_travelled = 0 # dystans od którego rozpoczynamy jest 0
-    cities_visited = tuple()
-    for a,b in travel: # i jednocześnie dla każdego elementu w dictionary travel:
-        travel.get((a,b)) # zwróć parę miast, w formie pojedynczych zmiennych
-        if a in cities_visited: # jeśli a znajduje się w liście miast odwiedzonych 
-            continue # skip
-        else:
-            distance_travelled += travel.get(x) # dodaj do dystansu dystans dla tej pary miast
-            travel_path.append((a,b)) # dodaj parę miast do listy travel_path
-            cities_visited.add(b) # dodaj to miasto które odwiedziłeś do listy
-            
-    
-    print(a)
-    print(b)
-    print([x])
-    print(travel.get(x))
+    valid_path = True
+    for index in range(len(permutacja) - 1): # i jednocześnie dla każdego indeksu w liście permutacji:
+        travel_try = (permutacja[index], permutacja[index+1]) # bierzemy z permutacji pierwszą parę miast
+        if travel_try in travel: # jeśli próba przejścia znajduje się w słowniku travel to:
+            distance_travelled += travel[travel_try] # do dystansu, który przeszliśmy dodaj wartość przypisaną do tego indeksu w słowniku
+        else: # jeśli nie ma takiej pary:
+            valid_path = False
+            break # nie ma drogi między tymi miastami i przerwij pętle   
+    if valid_path and distance_travelled < shortest_distance: # jeśli jest taka ścieżka i dystans który przeszliśmy jest mniejszy niż przy innych które sprawdzaliśmy, to przypisz jego wartość do najkrótszego dystansu
+        shortest_distance = distance_travelled
+        shortest_path = permutacja # i zwróć permutacje dla tego dystansu, bo to będzie najkrótsza droga
+    if valid_path and distance_travelled > longest_distance: # jeśli jest taka ścieżka i dystans który przeszliśmy jest większy niż przy innych które sprawdzaliśmy, to przypisz jego wartość do najdłuższego dystansu
+        longest_distance = distance_travelled
+        longest_path = permutacja # i zwróć permutacje dla tego dystansu, bo to będzie najdłuższa droga
 
-for a,b in travel:
-    travel.get((a,b))
-    print(a)
-    print(b)
+print(shortest_distance)
+print(shortest_path) 
+
+# --- Part Two ---
+# The next year, just to show off, Santa decides to take the route with the longest distance instead.
+
+# He can still start and end at any two (different) locations he wants, and he still must visit each location exactly once.
+
+# For example, given the distances above, the longest route would be 982 via (for example) Dublin -> London -> Belfast.
+
+# What is the distance of the longest route?
+
+print(longest_distance)
+print(longest_path)
+
+
+# ---- TESTY ----
+#     print(a)
+#     print(b)
+#     print([x])
+#     print(travel.get(x))
+
+# for a,b in travel:
+#     travel.get((a,b))
+#     print(a)
+#     print(b)
 # print(cities)
-# print(travel)
-
-        #     try:  # spróbuj przeprowadzić operacje logiczne dla tej instrukcji
-        #         if expr.isdigit(): # jeśli zmienna expr (czyli w przykladzie 123 -> x to będzie 123, basically lewa strona instrukcji to cyfra, to wtedy: )
-        #             value = int(expr) # wartość tego sygnalu będzie rowna tej lewej stronie, tylko trzeba zamienić str na int '123' na 123
-        #         elif "AND" in expr: # lub jeśli w zmiennej po lewej stronie jest wyrażenie "AND": 
-        #             a, b = expr.split(" AND ") # podziel sobie zmienną po lewej stronie np. x AND y na dwie kolejne zmienne a,b
-        #             a_val = int(a) if a.isdigit() else wires[a] # teraz oceniamy wartość wyrażenia, jeśli a będzie cyfrą, tak jak na przykład 123 -> x, to przypisz do tej wartości inta 123
-        #             b_val = int(b) if b.isdigit() else wires[b] # w przeciwnym wypadku, czyli else, wyciągnij wartość tej zmiennej ze słownika wires
-        #             value = (a_val & b_val) & 0xFFFF  # na koniec wartość tego sygnału będzie równa wyniku działania znaku & czyli AND w pythonie dla tych dwóch zmiennych
-        #             # 0xFFFF to takie wyrażenie, które pilnuje, żeby ta wartość była 16-bit (między 0 a 65535), czyli na przykład jeśli wynikiem działania będzie 70000 to zwraca 65535
-        #         elif "OR" in expr:
-        #             a, b = expr.split(" OR ") # analogicznie jak w AND tylko zmieniasz w ostatnim value znaczek z & na |
-        #             a_val = int(a) if a.isdigit() else wires[a]
-        #             b_val = int(b) if b.isdigit() else wires[b]
-        #             value = (a_val | b_val) & 0xFFFF
-        #         elif "LSHIFT" in expr:
-        #             a, n = expr.split(" LSHIFT ") # dalem n bo przy RSHIFT i LSHIFT jest zawsze cyferka po wyrażeniu
-        #             a_val = wires[a] # jeśli jest już takie wyrażenie w slowniku wires, to wyciągnij jego wartość
-        #             value = (a_val << int(n)) & 0xFFFF # zrób LSHIFT dla tej wartości przez n tylko trzeba ją zamienić na int
-        #         elif "RSHIFT" in expr:
-        #             a, n = expr.split(" RSHIFT ") # analogicznie
-        #             a_val = int(a) if a.isdigit() else wires[a]
-        #             value = (a_val >> int(n)) & 0xFFFF
-        #         elif "NOT" in expr:
-        #             a = expr.replace("NOT ", "") # w instrukcjach "NOT "(pamiętaj spacja) jest zawsze na początku, więc zamień NOT na puste miejsce i zostaje ci zawsze np z NOT ax -> ay, ax -> ay
-        #             a_val = wires[a] 
-        #             value = (~a_val) & 0xFFFF
-        #         else:
-        #             if expr in wires:
-        #                 value = wires[expr] # jeśli po lewej stronie nie ma żadnego z powyższych działań to wyciągnij wartość dla tego wire ze słownika wires
-        #             else:
-        #                 raise KeyError(expr) # jeśli nie ma tego wyrażenia w słowniku to sie wykrzacz
-        #         wires[target] = value # i po tych wszystkich działaniach przypisz wartość (value) do konkretnego (target) wire w słowniku wires
-        #     except KeyError: # odnosimy się do tego keyerrora, który był w else
-        #         next_pending.append(instruction) # dodaj tą instrukcję do listy oczekujących
-        # if len(next_pending) == len(pending): # jeśli ilość instrukcji oczekujących jest taka sama jak lista oczekujących (np. w obu nic nie ma, bo nic się nie udało dodać)
-        #     break # to wtedy przerwij pętle while pending:
-        # pending = next_pending # i zacznij iterować następną oczekującą instrukcję, bo zappendowałeś 3 linijki wcześniej kolejną instrukcję       
+# print(travel)       
