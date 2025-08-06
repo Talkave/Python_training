@@ -24,8 +24,8 @@
 # For example, given the four strings above, the total number of characters of string code (2 + 5 + 10 + 6 = 23) minus the total number of characters in memory for string values (0 + 3 + 7 + 1 = 11) is 23 - 11 = 12."""
 
 test_input = ["","abc","aaa\"aaa","\x27"] # 12
-mode = "input"
-# mode = "test_input"
+# mode = "input"
+mode = "test_input"
 
 if mode == "input":
     input_path = "./Advent of code/input_day8.txt"
@@ -72,7 +72,7 @@ for line in input: # dla każdej linijki w inpucie
     mem_len = decoded_length(line) # to co jest w pamięci
     total_code += code_len
     total_memory += mem_len
-
+print(input)
 print(total_code - total_memory)
 
 """--- Part Two ---
