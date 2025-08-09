@@ -65,4 +65,25 @@ print(sum(is_it_a_number(input)))
 # {"d":"red","e":[1,2,3,4],"f":5} now has a sum of 0, because the entire structure is ignored.
 # [1,"red",5] has a sum of 6, because "red" in an array has no effect.
 
-# o ja jebie kurwa 
+# o ja jebie kurwa
+ 
+import json
+
+def sum_no_red(obj):
+    if isinstance(obj, dict): # sprawdz czy w jsonie są słowniki {} (objects)
+        if "red" in obj.values(): # jeśli w wartościach obiektu znajduje się "red", zwróć go jako 0
+            return 0
+        return sum(sum_no_red(v) for v in obj.values()) # zwróć sumę v (values) dla v w values obiektu, w tym przypadku słownik (obj.values())
+    elif isinstance(obj, list): # lub jeśli w jsonie są listy [] (arrays)
+        return sum(sum_no_red(item) for item in obj) # zwróć sumę dla pozycji (item) w tym obiekcie, w tym przypadku array
+    elif isinstance(obj, int): # lub jeśli w jsonie są luźne cyfry
+        return obj # to je zwróć
+    else:
+        return 0 # w każdym innym wypadku zwróć 0 (stringi itp itd.)
+
+
+input_path2 = "./Advent of code/input_day12.json"
+file2 = open(input_path)
+data = json.load(file2)
+
+print(sum_no_red(data))
