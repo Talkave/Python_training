@@ -60,7 +60,7 @@ ingredients = {
 'Candy' : [0,5,-1,0,8],
 'Butterscotch' : [-1,0,5,0,6],
 'Sugar' : [0,0,-2,2,1]
-}
+} # latwiej mi na tym operować
 for weight_F in range(101):
     for weight_C in range(101-weight_F):
         for weight_B in range(101 - weight_F - weight_C):
@@ -74,7 +74,7 @@ for weight_F in range(101):
                 score = 0
             else:
                 score = total[0] * total[1] * total[2] * total[3]
-            if score > max_score and total_calories == 500: # calorie count
+            if score > max_score and total_calories == 500: # calorie counter
                 max_score = score
 
 print(max_score)

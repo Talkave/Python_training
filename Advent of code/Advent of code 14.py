@@ -49,7 +49,6 @@ for line in data.strip().splitlines():
 def reindeer(Name): #comet:
     seconds = 0
     distance = 0
-    score = 0
     i = 1
     while seconds < test_data: # śledzimy sekundy
         for x, obj in reindeer_dict.items():
