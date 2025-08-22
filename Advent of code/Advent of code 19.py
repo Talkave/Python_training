@@ -103,6 +103,7 @@ print(len(result))
 # Given the available replacements and the medicine molecule in your puzzle input, what is the fewest number of steps to go from e to the medicine molecule?
 
 sorted_instr = sorted(instructions, key = lambda x: len(x[1]), reverse= True)
+# print(sorted_instr)
 
 def reverse_replacer(molecule, sorted_instr):
     steps = 0
