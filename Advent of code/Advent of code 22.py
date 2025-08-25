@@ -164,6 +164,8 @@ def cast(spell_name):
     return spell_name, timer, effect, cost
 
 def combat(player_data, boss_data):
+    # mode = "Manual"
+    mode = 'automatic'
     player_armor = player_data['Armor']
     player_hp = player_data['Hit Points']
     boss_hp = boss_data['Hit Points']
@@ -171,25 +173,22 @@ def combat(player_data, boss_data):
     boss_dmg = max(1, boss_data['Damage'] - player_armor)
     player_dmg = 0
     # znajdz wieksza wartosc max(), miedzy wartoscia 1 a drugim argumentem - minimalny dmg jaki mozna zadac jest 1
-    active_spell_effects = {'Debuff' : {'timer': float('inf'), 'effect' : 1}}
-    # print(f"Available spells: ")
-    # for x in spells:
-        # print(x)
+    active_spell_effects = {}
+    if mode == "Manual":
+        print(f"Available spells: ")
+        for x in spells:
+            print(x)
     turn_count = 1
     total_mana_cost = 0
-    # print(f"---------------------- Turn {turn_count}. Your turn ------------------------\nYour current HP: {player_hp}\nYour current MP: {player_mana}\nArmor: {player_armor}\n\nCurrent boss hp: {boss_hp}\n")
+    if mode == "Manual":
+        print(f"---------------------- Turn {turn_count}. Your turn ------------------------\nYour current HP: {player_hp}\nYour current MP: {player_mana}\nArmor: {player_armor}\n\nCurrent boss hp: {boss_hp}\n")
     while True:
         while True:
-            player_hp -= 1
-            # print(f"The debuff ticks! HP: {player_hp}\n")
-                # HARDMODE
-            if player_hp <= 0:
-                # print("You lose... Try again?")
-                result = 'Loss'
-                break
-            # spell = input("Choose a spell to cast - just type the spell's name: \n").strip().casefold().capitalize()
-            import random
-            spell = random.choice(spell_name_list)
+            if mode == "Manual":
+                spell = input("Choose a spell to cast - just type the spell's name: \n").strip().casefold().capitalize()
+            if mode == 'automatic':
+                import random
+                spell = random.choice(spell_name_list)
             if (spell in spells.keys()) and (player_mana >= spells[spell].get('cost') and (spell not in active_spell_effects)):
                 spell_cast, timer, effect, cost = cast(spell)
                 player_mana -= cost
@@ -202,64 +201,78 @@ def combat(player_data, boss_data):
                 if timer > 0:
                     active_spell_effects.update({spell_cast : {'timer': timer, 'effect' : effect}})
                     player_dmg = 0 
-                # print(f"----------------------------------------------------------------------\n                   *******You cast {spell}!*******          \n----------------------------------------------------------------------\n")
+                if mode == "Manual":
+                    print(f"----------------------------------------------------------------------\n                   *******You cast {spell}!*******          \n----------------------------------------------------------------------\n")
                 break
             if player_mana < min(spell_cost_list):
-                # print("\n************************* You are out of mana... ****************************\n---------------------- Basic attack! ----------------------------------\n")
+                if mode == "Manual":
+                    print("\n********************** You are out of mana... *************************\n---------------------- Basic attack! ----------------------------------\n")
                 player_dmg = 1
                 break
             if spell == 'None':
-                # print(f"\n---------------------- Basic attack! ----------------------------------\n")
+                if mode == "Manual":
+                    print(f"\n---------------------- Basic attack! ----------------------------------\n")
                 player_dmg = 1
                 break
             if spell not in spells:
-                # print("\nSpell not recognized, are you sure you typed in the correct name? \n Try again. If you want to use your basic attack, type in \"none\".\n")
+                if mode == "Manual":    
+                    print("\nSpell not recognized, are you sure you typed in the correct name? \n Try again. If you want to use your basic attack, type in \"none\".\n")
                 continue
             if player_mana < spells[spell].get('cost'):
-                # print("\n************************ Not enough mana! *************************\n\n--------------------------- Try a different spell: ---------------------------\n")  
+                if mode == "Manual":
+                    print("\n************************ Not enough mana! *************************\n\n--------------------------- Try a different spell: ---------------------------\n")  
                 continue
             if spell in active_spell_effects:
-                # print("\n************************ Spell already active. *************************\n\n--------------------------- Try a different spell: ---------------------------\n")  
+                if mode == "Manual":
+                    print("\n************************ Spell already active. *************************\n\n--------------------------- Try a different spell: ---------------------------\n")  
                 continue
             break
-
+        player_hp -= 1
+        if mode == "Manual":
+            print(f"The debuff ticks! HP: {player_hp}\n")
+                # HARDMODE
+        if player_hp <= 0:
+            if mode == "Manual":
+                print("You lose... Try again?")
+            result = 'Loss'
+            break
         if 'Shield' in active_spell_effects:
             player_armor = active_spell_effects['Shield']['effect']
         if 'Shield' not in active_spell_effects:
             player_armor = 0
         if 'Recharge' in active_spell_effects:
             player_mana += active_spell_effects['Recharge']['effect']
-            # print(f'************* Recharge refills {spells['Recharge'].get('effect')} of your mana! *****************\n')
-        # if spell == 'Drain':
-        #     print(f'Drain heals you for {spells['Drain'].get('effect')} hp.\n')
+            if mode == "Manual":
+                print(f'************* Recharge refills {spells['Recharge'].get('effect')} of your mana! *****************\n')
+        if mode == "Manual":
+            if spell == 'Drain':
+                print(f'Drain heals you for {spells['Drain'].get('effect')} hp.\n')
         boss_hp -= player_dmg
-        # if player_dmg > 0:
-        #     print(f"You deal: {player_dmg} damage!\n")
-        # print(f"Boss: {boss_hp} hp \nActive spells: {list(active_spell_effects.keys())}\n")
+        if mode == "Manual":
+            if player_dmg > 0:
+                print(f"You deal: {player_dmg} damage!\n")
+            print(f"Boss: {boss_hp} hp \nActive spells: {list(active_spell_effects.keys())}\n")
         turn_count += 1
-        # print(f"---------------------- Turn {turn_count}. Boss's turn. ----------------------\n")
-        player_hp -= 1
-        # print(f"The debuff ticks! HP: {player_hp}\n")
-            # HARDMODE
-        if player_hp <= 0:
-            # print("You lose... Try again?")
-            result = 'Loss'
-            break
+        if mode == "Manual":
+            print(f"---------------------- Turn {turn_count}. Boss's turn. ----------------------\n")
         for spell, data in list(active_spell_effects.items()):
             data['timer'] -= 1
             if data['timer'] <= 0:
                 active_spell_effects.pop(spell)
-                # print(f'{spell} wears off.\n')
+                if mode == "Manual":
+                    print(f'{spell} wears off.\n')
         if 'Poison' in active_spell_effects:
             for spell, data in list(active_spell_effects.items()):
                 if data['timer'] != spells['Poison'].get('timer'):
                     boss_hp -= spells['Poison'].get('effect')
-                    # print(f'************* Poison deals {spells['Poison'].get('effect')} damage!*************\nCurrent boss hp: {boss_hp}\n')
+                    if mode == "Manual":
+                        print(f'************* Poison deals {spells['Poison'].get('effect')} damage!*************\nCurrent boss hp: {boss_hp}\n')
                     break  
                 else:
                     continue
         if boss_hp <= 0:
-            # print("You win!")
+            if mode == "Manual":
+                print("You win!")
             result = 'Win'
             break
         if 'Shield' in active_spell_effects:
@@ -268,38 +281,45 @@ def combat(player_data, boss_data):
             player_armor = 0
         if 'Recharge' in active_spell_effects:
             player_mana += active_spell_effects['Recharge']['effect']
-            # print(f'************* Recharge refills {spells['Recharge'].get('effect')} of your mana! *****************\n')
+            if mode == "Manual":
+                print(f'************* Recharge refills {spells['Recharge'].get('effect')} of your mana! *****************\n')
         player_hp -= boss_dmg - player_armor
-        # print(f"Boss deals:  {boss_dmg - player_armor} damage!\nActive spells: {list(active_spell_effects.keys())}\n")
+        if mode == "Manual":
+           print(f"Boss deals:  {boss_dmg - player_armor} damage!\nActive spells: {list(active_spell_effects.keys())}\n")
         turn_count += 1
-        # print(f"---------------------- Turn {turn_count}. Your turn. ------------------------\n\nHP: {player_hp}\nMP: {player_mana}\nArmor: {player_armor}\nActive spells: {list(active_spell_effects.keys())}\n")
+        if mode == "Manual":    
+            print(f"---------------------- Turn {turn_count}. Your turn. ------------------------\n\nHP: {player_hp}\nMP: {player_mana}\nArmor: {player_armor}\nActive spells: {list(active_spell_effects.keys())}\n")
         if 'Poison' in active_spell_effects:
             for spell, data in list(active_spell_effects.items()):
                 if data['timer'] != spells['Poison'].get('timer'):
                     boss_hp -= spells['Poison'].get('effect')
-                    # print(f'************* Poison deals {spells['Poison'].get('effect')} damage!*************\nCurrent boss hp: {boss_hp}\n')
+                    if mode == "Manual":
+                        print(f'************* Poison deals {spells['Poison'].get('effect')} damage!*************\nCurrent boss hp: {boss_hp}\n')
                     break
                 else:
                     continue
         if boss_hp <= 0:
-            # print("You win!")
+            if mode == "Manual":    
+                print("You win!")
             result = 'Win'
             break
         for spell, data in list(active_spell_effects.items()):
             data['timer'] -= 1
             if data['timer'] <= 0:
                 active_spell_effects.pop(spell)
-                # print(f'{spell} wears off.\n')
+                if mode == "Manual":
+                    print(f'{spell} wears off.\n')
         if player_hp <= 0:
-            # print("You lose... Try again?")
+            if mode == "Manual":
+                print("You lose... Try again?")
             result = 'Loss'
             break
     return result, total_mana_cost
 
-# combat_result = combat(player_starting_data, boss_data)
+# combat_result, total_mana_cost = combat(player_starting_data, boss_data)
 # if combat_result == 'Loss':
-#     decision = input('Y/N? ').capitalize()
-#     if decision == 'Y':
+#     decision = input('Y/N? ').casefold()
+#     if decision == 'y':
 #         combat(player_starting_data,boss_data)
 #     else:
 #         print('Loser')
@@ -312,9 +332,10 @@ def autobattler():
         mana_costs.append(total_mana_cost)
     else:
         return mana_costs
-while len(mana_costs) < 5:
+while len(mana_costs) <= 10:
     autobattler()
-print(min(mana_costs))
+print(mana_costs)
+
 # minimum cost dla mojego data 1791 ale zla odp, 1824 correct
 
 # --- Part Two ---
