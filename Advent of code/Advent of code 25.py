@@ -55,7 +55,7 @@
 
 # Santa looks nervous. Your puzzle input contains the message on the machine's console. What code do you give the machine?
 
-test_data = 10
+test_data = ['row', 2947, 'column', 3029]
 
 mode = "input"
 # mode = "test_input"
@@ -68,4 +68,18 @@ if mode == "input":
 elif mode == "test_input":
     data = test_data
     print("MODE = TEST")
+
+def idx(row, column):
+    diagonal = row + column - 1
+    g_idx = ((diagonal-1)*diagonal) / 2 + column
+    return int(g_idx)
+# print(idx(1,1))
+target_idx = int(idx(2947,3029))
+current_idx = 1
+value = 20151125
+while current_idx < target_idx:
+    value = (value * 252533) % 33554393
+    current_idx += 1
+
+print(value)
 
