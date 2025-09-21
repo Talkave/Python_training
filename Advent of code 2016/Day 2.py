@@ -44,11 +44,73 @@ if mode == "input":
 elif mode == "test_input":
     data = test_data
     print("MODE = TEST")
-# print(data)
+parsed_data = []
 for x in data:
-    print(x)
-# parsed_data = []
-# for x in data:
-#     parsed_x = x[0:]
-#     parsed_data.append(parsed_x)
-# # print(parsed_data)
+    parsed_data.append(x)
+# print(parsed_data)
+position = 5
+def code_generator(position, data):
+    for z in data:
+        if z == 'D' and (position not in [7,8,9]):
+            position += 3
+        elif z == 'L' and (position not in [1,4,7]):
+            position -= 1
+        elif z == 'R' and (position not in [3,6,9]):
+            position += 1 
+        elif z == 'U' and (position not in [1,2,3]):
+            position -= 3
+        else:
+            continue
+    return position
+keycode = []
+for line in parsed_data:
+    position = code_generator(position,line)
+    keycode.append(position)
+print(keycode)
+
+# --- Part Two ---
+# You finally arrive at the bathroom (it's a several minute walk from the lobby so visitors can behold the many fancy conference rooms and water coolers on this floor)
+# and go to punch in the code. Much to your bladder's dismay, the keypad is not at all like you imagined it. 
+# Instead, you are confronted with the result of hundreds of man-hours of bathroom-keypad-design meetings:
+
+#     1
+#   2 3 4
+# 5 6 7 8 9
+#   A B C
+#     D
+# You still start at "5" and stop when you're at an edge, but given the same instructions as above, the outcome is very different:
+
+# You start at "5" and don't move at all (up and left are both edges), ending at 5.
+# Continuing from "5", you move right twice and down three times (through "6", "7", "B", "D", "D"), ending at D.
+# Then, from "D", you move five more times (through "D", "B", "C", "C", "B"), ending at B.
+# Finally, after five more moves, you end at 3.
+# So, given the actual keypad layout, the code would be 5DB3.
+
+# Using the same instructions in your puzzle input, what is the correct bathroom code?
+
+keypad = [
+    [None, None ,'1',None,None],
+    [None   ,'2','3','4',None],
+        ['5','6','7','8','9'],
+    [None   ,'A','B','C',None],
+    [None,None  ,'D',None,None]
+] # (row,col) index
+row, col = 2, 0
+keycode2 = []
+for line in parsed_data:
+    for symbol in line:
+        new_row, new_col = row,col
+        if symbol == 'D':
+            new_row += 1
+        elif symbol == 'U':
+            new_row -= 1
+        elif symbol == 'L':
+            new_col -= 1
+        elif symbol == 'R':
+            new_col += 1
+        if (0 <= new_row < len(keypad)
+            and 0 <= new_col < len(keypad[0])
+            and keypad[new_row][new_col] is not None):
+            row,col = new_row,new_col
+    keycode2.append(keypad[row][col])
+print(keycode2)
